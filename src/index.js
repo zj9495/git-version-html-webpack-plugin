@@ -1,5 +1,8 @@
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { GitRevisionPlugin } = require("git-revision-webpack-plugin");
 const gitRevisionPlugin = new GitRevisionPlugin();
+
+const NAME = "GitVersionPlugin"
 
 class GitVersionPlugin {
   comment = "";
@@ -17,10 +20,10 @@ class GitVersionPlugin {
 
   apply(compiler) {
     compiler.hooks.compilation.tap(
-      "GitVersionPlugin",
+      NAME,
       (compilation, callback) => {
-        compilation.hooks.htmlWebpackPluginAfterHtmlProcessing.tap(
-          "GitVersionPlugin",
+        HtmlWebpackPlugin.getHooks(compilation).beforeEmit.tap(
+          NAME,
           (htmlPluginData, callback) => {
             htmlPluginData.html = this.comment + htmlPluginData.html;
             return htmlPluginData;
