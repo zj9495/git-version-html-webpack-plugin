@@ -1,8 +1,9 @@
-const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { GitRevisionPlugin } = require("git-revision-webpack-plugin");
 const gitRevisionPlugin = new GitRevisionPlugin();
+const fs = require('fs')
+const { resolve } = require('path')
 
-const NAME = "GitVersionPlugin"
+const pluginName = "GitVersionPlugin"
 
 class GitVersionPlugin {
   comment = "";
@@ -19,18 +20,12 @@ class GitVersionPlugin {
   }
 
   apply(compiler) {
-    compiler.hooks.compilation.tap(
-      NAME,
-      (compilation, callback) => {
-        HtmlWebpackPlugin.getHooks(compilation).beforeEmit.tap(
-          NAME,
-          (htmlPluginData, callback) => {
-            htmlPluginData.html = this.comment + htmlPluginData.html;
-            return htmlPluginData;
-          }
-        );
+    compiler.hooks.assetEmitted.tap(pluginName, (file, {content}) => {
+      if (/index\.html?$/.test(file)) {
+        const res = this.comment + content.toString()
+        fs.writeFileSync(resolve(compiler.outputPath, file), res)
       }
-    );
+    })
   }
 }
 
